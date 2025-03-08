@@ -1,8 +1,9 @@
-from contantes import ENTRADA_INVALIDA, CLIENTE_EXISTENTE, AGENCIA, MENU_OPERACOES, OPERACAO_NAO_EXISTENTE, CLIENTE_NAO_EXISTENTE
+from constantes import ENTRADA_INVALIDA, CLIENTE_EXISTENTE, AGENCIA, MENU_OPERACOES, OPERACAO_NAO_EXISTENTE, CLIENTE_NAO_EXISTENTE
 from operacoes import sacar, depositar, visualizar_extrato
+from entidades import PessoaFisica, ContaCorrente
 
-clientes = {}
-contas_correntes = []
+clientes = []
+contas = []
 
 def obter_input(mensagem, validar=None):
     while True:
@@ -11,7 +12,8 @@ def obter_input(mensagem, validar=None):
             return valor
         
 def validar_cpf(cpf):
-    if not clientes.get(cpf):    
+    cliente_existente = [cliente for cliente in clientes if cliente.cpf == cpf]
+    if not cliente_existente:    
         if cpf.isdigit() and len(cpf) == 11:
             return True
         else:
@@ -25,15 +27,15 @@ def validar_estado(sigla):
     else:
         print(ENTRADA_INVALIDA)
 
-def filtrar_conta_corrente(cpf):
-    conta_corrente_filtradas = [conta for conta in contas_correntes if conta['usuario']['cpf'] == cpf]
-    return conta_corrente_filtradas[0] if conta_corrente_filtradas else None
+def filtrar_cliente(cpf):
+    clientes_filtrados = [cliente for cliente in clientes if cliente.cpf == cpf]
+    return clientes_filtrados[0] if clientes_filtrados else None
 
-def criar_nova_conta(cpf):
-    usuario = clientes.get(cpf)
-    usuario['cpf'] = cpf
-    contas_correntes.append({"agencia": AGENCIA, "numero_da_conta": len(contas_correntes) + 1, "usuario": usuario, "operacoes": []})
-    print("\nConta corrente criada com sucesso!\n")
+def criar_nova_conta(cliente):
+    nova_conta = ContaCorrente(numero=len(contas), cliente=cliente)
+    cliente.adicionar_conta(nova_conta)
+    contas.append(nova_conta)
+    print("\nConta criada com sucesso!\n")
 
 def cadastrar_novo_cliente():
     print("\nPreencha o formulário para cadastro:\n")
@@ -49,25 +51,19 @@ def cadastrar_novo_cliente():
         "Estado": obter_input("Sigla do estado (ex: RJ): ", validar_estado)
     }
 
-    clientes.update({dados["CPF"]: { 
-        "nome": dados["Nome"], 
-        "data_nascimento": dados["Data de nascimento"],
-        "endereco": f"{dados['Logradouro']}, {dados['Número']} - {dados['Bairro']} - {dados['Cidade']}/{dados['Estado']}"
-    }})
-    criar_nova_conta(dados["CPF"])
+    cliente = PessoaFisica(dados["CPF"], dados["Nome"],  dados["Data de nascimento"], f"{dados['Logradouro']}, {dados['Número']} - {dados['Bairro']} - {dados['Cidade']}/{dados['Estado']}")
+    clientes.append(cliente)
+    criar_nova_conta(cliente)
 
     print("\nCadastro realizado com sucesso!\n")
 
 def acessar_conta():
     cpf = None
-    saldo = 0.0
-    numero_saque = 0
-    conta_corrente = None
   
     while True:
         cpf = input("\nDigite seu CPF (somente números): ")
-        conta_corrente = filtrar_conta_corrente(cpf)
-        if cpf not in clientes:
+        cliente = filtrar_cliente(cpf)
+        if not cliente:
             print(CLIENTE_NAO_EXISTENTE)
         else:
             break
@@ -77,13 +73,13 @@ def acessar_conta():
         opcao = int(input(MENU_OPERACOES))
 
         if opcao == 1:
-            saldo = depositar(conta_corrente, saldo)
+            depositar(cliente)
 
         elif opcao == 2:
-            saldo, numero_saque = sacar(conta=conta_corrente, saldo=saldo, numero_saques=numero_saque)
+            sacar(cliente=cliente)
 
         elif opcao == 3:
-            visualizar_extrato(conta_corrente, saldo=saldo)
+            visualizar_extrato(cliente)
         
         elif opcao == 4:
             criar_nova_conta(cpf)

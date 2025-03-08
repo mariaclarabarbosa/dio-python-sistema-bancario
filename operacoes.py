@@ -1,58 +1,38 @@
-from contantes import VALOR_INVALIDO, LIMITE, LIMITES_SAQUES, SEM_MOVIMENTACAO, LIMITE_SAQUE_EXCEDIDO, LIMITE_VALOR_SAQUE_EXCEDIDO, SALDO_INSUFICIENTE
+from constantes import VALOR_INVALIDO, LIMITE, LIMITES_SAQUES, SEM_MOVIMENTACAO, LIMITE_SAQUE_EXCEDIDO, LIMITE_VALOR_SAQUE_EXCEDIDO, SALDO_INSUFICIENTE
+from entidades import Deposito, Saque
 
-def depositar(conta, saldo, /):
-  novo_saldo = saldo
+def recuperar_conta_cliente(cliente):
+    return cliente.contas[0]
 
+def depositar(cliente, /):
   valor = float(input("\nValor a ser depositado: R$ "))
-
-  if valor > 0:
-    novo_saldo += valor
-    conta["operacoes"].append({"deposito": valor})
-    print(f"Depósito de R$ {valor:.2f} realizado com sucesso.")
-    return novo_saldo
-    
-  else:
-    print(VALOR_INVALIDO)
+  transacao = Deposito(valor)
+  conta = recuperar_conta_cliente(cliente)
+  cliente.realizar_transacao(conta, transacao)
+  
 
 
-def sacar(*, conta, saldo, numero_saques):
-  novo_saldo = saldo
-  total_saques = numero_saques
-
+def sacar(*, cliente):
   valor = float(input("\nValor a ser sacado: R$ "))
+  transacao = Saque(valor)
+  conta = recuperar_conta_cliente(cliente)
+  cliente.realizar_transacao(conta, transacao)
 
-  if valor > 0:
-      if valor > LIMITE:
-        print(LIMITE_VALOR_SAQUE_EXCEDIDO)
 
-      elif total_saques >= LIMITES_SAQUES:
-        print(LIMITE_SAQUE_EXCEDIDO)
+def visualizar_extrato(cliente):
+  conta = recuperar_conta_cliente(cliente)
+  transacoes = conta.historico.transacoes
+  extrato = ""
 
-      elif valor > novo_saldo:
-        print(SALDO_INSUFICIENTE)
-
-      else:
-        novo_saldo -= valor
-        total_saques += 1
-        conta["operacoes"].append({"saque": valor})
-        print(f"Saque de R$ {valor:.2f} realizado com sucesso.")
-        
-      return novo_saldo, total_saques
-
-  else:
-      print(VALOR_INVALIDO)
-
-def visualizar_extrato(conta, /, *, saldo):
   print()
   print("EXTRATO".center(36, '='))
     
-  if not conta["operacoes"]:
-      print(SEM_MOVIMENTACAO)
+  if not transacoes:
+      extrato = SEM_MOVIMENTACAO
   else:
-      extrato = "\n".join(
-          [f"\n{list(op.keys())[0].title()}: R$ {list(op.values())[0]:.2f}" for op in conta["operacoes"]]
-      )
-      print(extrato)
-    
-  print(f"\nSaldo: R$ {saldo:.2f}")
+      for transacao in transacoes:
+        extrato += f"\n{transacao['tipo']}:\tR${transacao['valor']:.2f}"
+  
+  print(extrato)  
+  print(f"\nSaldo: R$ {conta.saldo:.2f}")
   print("=".center(36, '='))

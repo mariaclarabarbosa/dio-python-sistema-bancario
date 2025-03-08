@@ -1,4 +1,4 @@
-from contantes import OPERACAO_NAO_EXISTENTE, MENU_PRINCIPAL
+from constantes import OPERACAO_NAO_EXISTENTE, MENU_PRINCIPAL
 from clientes import cadastrar_novo_cliente, acessar_conta
 
 def iniciar_sistema():

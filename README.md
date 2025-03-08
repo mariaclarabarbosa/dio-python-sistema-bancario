@@ -1,10 +1,10 @@
-# Desafio: Sistema Bancário v2
+# Desafio: Sistema Bancário v3
 
 Este projeto foi desenvolvido como parte de um desafio para implementar um **sistema bancário básico** utilizando a linguagem **Python**. O sistema contém as operações de depósito, saque e extrato, seguindo as regras definidas pelo banco contratante.
 
 ## 📋 Descrição do Desafio
 
-Fomos contratados por um grande banco para desenvolver o seu novo sistema bancário, com o objetivo de modernizar suas operações. Para a segunda versão do sistema (v2), precisamos implementar 5 operações principais:
+Fomos contratados por um grande banco para desenvolver o seu novo sistema bancário, com o objetivo de modernizar suas operações. Para a terceira versão do sistema (v3), precisamos implementar 5 operações principais de acordo com a Programação Orientada a Objetos:
 
 1. **Depósito**
 2. **Saque**
